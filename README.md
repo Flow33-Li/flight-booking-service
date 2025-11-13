@@ -1,94 +1,89 @@
 # Flight Booking Service
 
-一个基于 Quarkus 的航班预订系统 RESTful API 服务。
+A RESTful API service for flight booking system built with Quarkus.
 
-## 功能特性
+## Features
 
-### 核心功能
-- **Customer Management (客户管理)**: 创建、查询、更新、删除客户
-- **Commodity Management (商品/航班管理)**: 创建、查询、更新、删除商品（航班）
-- **Booking Management (预订管理)**: 创建、查询、取消预订
+### Core Functionality
+- **Customer Management**: Create, read, update, and delete customers
+- **Commodity Management**: Create, read, update, and delete commodities (flights)
+- **Booking Management**: Create, read, and cancel bookings
 
-### 高级特性
-- **级联删除**: 删除客户或商品时，自动删除相关的预订记录
-- **GuestBooking 端点**: 使用 JTA API 手动管理事务，在单一事务中创建客户和预订
-- **Swagger UI**: 完整的 API 文档和交互式测试界面
-- **REST Assured 测试**: 全面的单元测试和集成测试
+### Advanced Features
+- **Cascade Delete**: Automatically delete related bookings when a customer or commodity is deleted
+- **GuestBooking Endpoint**: Create customer and booking in a single transaction using manual JTA transaction management
+- **Swagger UI**: Complete API documentation with interactive testing interface
+- **REST Assured Tests**: Comprehensive unit and integration tests
 
-## 技术栈
+## Tech Stack
 
-- **框架**: Quarkus 3.2.9
-- **Java 版本**: Java 17
-- **数据库**: H2 (内存数据库)
+- **Framework**: Quarkus 3.15.1
+- **Java Version**: Java 17
+- **Database**: H2 (in-memory database)
 - **ORM**: Hibernate with Panache
-- **API 文档**: OpenAPI/Swagger
-- **测试**: JUnit 5 + REST Assured
-- **事务管理**: JTA (Java Transaction API)
+- **API Documentation**: OpenAPI/Swagger
+- **Testing**: JUnit 5 + REST Assured
+- **Transaction Management**: JTA (Java Transaction API)
 
-## 本地运行
+## Running Locally
 
-### 前置要求
+### Prerequisites
 - Java 17
 - Maven 3.9+
 
-### 运行步骤
+### Steps
 
-1. **克隆项目**
+1. **Clone the repository**
 ```bash
 git clone <your-repo-url>
-cd test11
+cd flight-booking-service
 ```
 
-2. **启动应用 (开发模式)**
+2. **Start the application (dev mode)**
 ```bash
 ./mvnw quarkus:dev
 ```
 
-或者在 Windows 上:
-```bash
-mvnw.cmd quarkus:dev
-```
-
-3. **访问应用**
-- API 端点: http://localhost:8080
+3. **Access the application**
+- API endpoints: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui
-- OpenAPI 规范: http://localhost:8080/openapi
+- OpenAPI spec: http://localhost:8080/openapi
 
-### 运行测试
+### Run Tests
 ```bash
 ./mvnw test
 ```
 
-## API 端点
+## API Endpoints
 
-### Customers (客户)
-- `GET /customers` - 获取所有客户
-- `GET /customers/{id}` - 根据 ID 获取客户
-- `POST /customers` - 创建新客户
-- `PUT /customers/{id}` - 更新客户
-- `DELETE /customers/{id}` - 删除客户（级联删除相关预订）
+### Customers
+- `GET /customers` - Get all customers
+- `GET /customers/{id}` - Get customer by ID
+- `POST /customers` - Create new customer
+- `PUT /customers/{id}` - Update customer
+- `DELETE /customers/{id}` - Delete customer (cascade delete related bookings)
 
-### Commodities (商品/航班)
-- `GET /commodities` - 获取所有商品
-- `GET /commodities/available` - 获取有库存的商品
-- `GET /commodities/{id}` - 根据 ID 获取商品
-- `POST /commodities` - 创建新商品
-- `PUT /commodities/{id}` - 更新商品
-- `DELETE /commodities/{id}` - 删除商品（级联删除相关预订）
+### Commodities
+- `GET /commodities` - Get all commodities
+- `GET /commodities/available` - Get available commodities
+- `GET /commodities/{id}` - Get commodity by ID
+- `POST /commodities` - Create new commodity
+- `PUT /commodities/{id}` - Update commodity
+- `DELETE /commodities/{id}` - Delete commodity (cascade delete related bookings)
 
-### Bookings (预订)
-- `GET /bookings` - 获取所有预订
-- `GET /bookings/{id}` - 根据 ID 获取预订
-- `GET /bookings/customer/{customerId}` - 获取某客户的所有预订
-- `POST /bookings?customerId={id}&commodityId={id}` - 创建新预订
-- `DELETE /bookings/{id}` - 取消预订
+### Bookings
+- `GET /bookings` - Get all bookings
+- `GET /bookings/{id}` - Get booking by ID
+- `GET /bookings/customer/{customerId}` - Get all bookings for a customer
+- `POST /bookings?customerId={id}&commodityId={id}` - Create new booking
+- `DELETE /bookings/{id}` - Cancel booking
 
-### Guest Bookings (访客预订)
-- `POST /guest-bookings` - 在单一事务中创建客户和预订（使用 JTA 手动事务管理）
+### Guest Bookings
+- `POST /guest-bookings` - Create customer and booking in a single transaction (manual JTA transaction management)
 
-## API 使用示例
+## API Usage Examples
 
-### 创建客户
+### Create Customer
 ```bash
 curl -X POST http://localhost:8080/customers \
   -H "Content-Type: application/json" \
@@ -100,12 +95,12 @@ curl -X POST http://localhost:8080/customers \
   }'
 ```
 
-### 创建预订
+### Create Booking
 ```bash
 curl -X POST "http://localhost:8080/bookings?customerId=1&commodityId=1"
 ```
 
-### 创建访客预订（事务性）
+### Create Guest Booking (Transactional)
 ```bash
 curl -X POST http://localhost:8080/guest-bookings \
   -H "Content-Type: application/json" \
@@ -120,9 +115,9 @@ curl -X POST http://localhost:8080/guest-bookings \
   }'
 ```
 
-## 数据模型
+## Data Models
 
-### Customer (客户)
+### Customer
 ```json
 {
   "id": 1,
@@ -133,7 +128,7 @@ curl -X POST http://localhost:8080/guest-bookings \
 }
 ```
 
-### Commodity (商品/航班)
+### Commodity
 ```json
 {
   "id": 1,
@@ -144,7 +139,7 @@ curl -X POST http://localhost:8080/guest-bookings \
 }
 ```
 
-### Booking (预订)
+### Booking
 ```json
 {
   "id": 1,
@@ -154,82 +149,72 @@ curl -X POST http://localhost:8080/guest-bookings \
 }
 ```
 
-## 部署到 OpenShift
+## Deploying to OpenShift
 
-### 前置条件
-1. 已注册 Red Hat OpenShift 账号
-2. 已配置 OpenShift 项目
-3. 代码已推送到 GitHub
+### Prerequisites
+1. Red Hat OpenShift account
+2. OpenShift project configured
+3. Code pushed to GitHub
 
-### 部署步骤
+### Deployment Steps
 
-参考教程文档：
-- [OpenShift 初始设置](https://github.com/NewcastleComputingScience/CSC8104-Quarkus-Specification/blob/main/tutorial.asciidoc)
-- [重新部署指南](https://github.com/NewcastleComputingScience/CSC8104-Quarkus-Specification/blob/main/serverless-redeploy.md)
+Reference documentation:
+- [OpenShift Setup Guide](https://github.com/NewcastleComputingScience/CSC8104-Quarkus-Specification/blob/main/tutorial.asciidoc)
+- [Redeployment Guide](https://github.com/NewcastleComputingScience/CSC8104-Quarkus-Specification/blob/main/serverless-redeploy.md)
 
-### 快速部署流程
+### Quick Deployment Process
 
-1. **推送代码到 GitHub**
+1. **Push code to GitHub**
 ```bash
 git add .
 git commit -m "Initial commit"
 git push origin main
 ```
 
-2. **在 OpenShift 中创建应用**
-- 登录 OpenShift 控制台
-- 选择 "Import from Git"
-- 输入 GitHub 仓库 URL
-- 选择 "Knative Service"
-- 点击 "Create"
+2. **Create application in OpenShift**
+- Log in to OpenShift console
+- Select "Import from Git"
+- Enter GitHub repository URL
+- Select "Knative Service"
+- Click "Create"
 
-3. **每次更新代码后重新部署**
-- 推送代码到 GitHub
-- 在 OpenShift 中触发新构建 (Builds → BuildConfigs → Start build)
-- 更新 Knative Service 的 `buildVersion` 注解以触发重新部署
+3. **Redeploy after code updates**
+- Push code to GitHub
+- Trigger new build in OpenShift (Builds → BuildConfigs → Start build)
+- Update Knative Service `buildVersion` annotation to trigger redeployment
 
-## 项目结构
+## Project Structure
 
 ```
-test11/
+flight-booking-service/
 ├── src/
 │   ├── main/
 │   │   ├── java/uk/ac/newcastle/enterprisemiddleware/
-│   │   │   ├── entity/          # 实体类
-│   │   │   ├── repository/      # 数据访问层
-│   │   │   ├── service/         # 业务逻辑层
-│   │   │   └── rest/            # REST 端点
-│   │   │       └── dto/         # 数据传输对象
+│   │   │   ├── entity/          # Entity classes
+│   │   │   ├── repository/      # Data access layer
+│   │   │   ├── service/         # Business logic layer
+│   │   │   └── rest/            # REST endpoints
+│   │   │       └── dto/         # Data transfer objects
 │   │   └── resources/
 │   │       ├── application.properties
-│   │       └── import.sql       # 初始数据
+│   │       └── import.sql       # Initial data
 │   └── test/
-│       └── java/                # REST Assured 测试
-├── .s2i/                        # OpenShift S2I 配置
+│       └── java/                # REST Assured tests
+├── .s2i/                        # OpenShift S2I configuration
 ├── .mvn/                        # Maven wrapper
 ├── pom.xml
 └── README.md
 ```
 
-## 特殊实现说明
+## Implementation Details
 
-### 级联删除
-使用 JPA 的 `@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)` 注解实现。
-删除 Customer 或 Commodity 时，所有相关的 Booking 会自动删除。
+### Cascade Delete
+Uses JPA `@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)` annotation.
+When a Customer or Commodity is deleted, all related Bookings are automatically deleted.
 
-### JTA 事务管理
-`GuestBookingResource` 使用 `UserTransaction` API 手动管理事务：
-- 手动开始事务 (`userTransaction.begin()`)
-- 执行业务操作
-- 成功则提交 (`userTransaction.commit()`)
-- 失败则回滚 (`userTransaction.rollback()`)
-
-## 开发者信息
-
-- **课程**: CSC8104 Enterprise Software and Services
-- **学校**: Newcastle University
-
-## 许可证
-
-本项目仅用于教育目的。
-
+### JTA Transaction Management
+`GuestBookingResource` uses `UserTransaction` API for manual transaction management:
+- Manually begin transaction (`userTransaction.begin()`)
+- Execute business operations
+- Commit on success (`userTransaction.commit()`)
+- Rollback on failure (`userTransaction.rollback()`)
