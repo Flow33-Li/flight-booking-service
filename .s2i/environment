@@ -1,5 +1,3 @@
-MAVEN_ARGS=clean package -DskipTests -Dmaven.test.skip=true -Dquarkus.package.type=fast-jar
+MAVEN_ARGS=clean package -DskipTests -Dmaven.test.skip=true -Dquarkus.package.type=uber-jar
 MAVEN_OPTS=-Xmx1536m -XX:MaxMetaspaceSize=512m
-S2I_SOURCE_DEPLOYMENTS_FILTER=*.jar
-MAVEN_S2I_ARTIFACT_DIRS=target/quarkus-app
 
