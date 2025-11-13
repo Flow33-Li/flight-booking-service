@@ -1,3 +1,4 @@
-MAVEN_ARGS=clean package -DskipTests
+MAVEN_ARGS=clean package -DskipTests -Dmaven.test.skip=true
+MAVEN_OPTS=-Xmx1024m -XX:MaxMetaspaceSize=512m
 ARTIFACT_COPY_ARGS=-p -r lib/ *-runner.jar
 
