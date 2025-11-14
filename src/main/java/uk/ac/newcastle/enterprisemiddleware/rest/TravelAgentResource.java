@@ -13,6 +13,9 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import uk.ac.newcastle.enterprisemiddleware.client.HotelBookingRequest;
 import uk.ac.newcastle.enterprisemiddleware.client.HotelBookingResponse;
 import uk.ac.newcastle.enterprisemiddleware.client.HotelServiceClient;
+import uk.ac.newcastle.enterprisemiddleware.client.TaxiBookingRequest;
+import uk.ac.newcastle.enterprisemiddleware.client.TaxiBookingResponse;
+import uk.ac.newcastle.enterprisemiddleware.client.TaxiServiceClient;
 import uk.ac.newcastle.enterprisemiddleware.entity.Booking;
 import uk.ac.newcastle.enterprisemiddleware.rest.dto.TravelAgentBookingRequest;
 import uk.ac.newcastle.enterprisemiddleware.rest.dto.TravelAgentBookingResponse;
@@ -38,18 +41,22 @@ public class TravelAgentResource {
     HotelServiceClient hotelServiceClient;
 
     @Inject
+    @RestClient
+    TaxiServiceClient taxiServiceClient;
+
+    @Inject
     BookingService bookingService;
 
     /**
-     * Create a travel booking (Hotel + Flight) with distributed transaction coordination
+     * Create a travel booking (Hotel + Flight + Taxi) with distributed transaction coordination
      *
      * @param request Travel booking request
-     * @return Travel booking response with both booking IDs or error
+     * @return Travel booking response with all booking IDs or error
      */
     @POST
     @Path("/bookings")
     @Operation(summary = "Create travel booking", 
-               description = "Creates hotel and flight bookings. Implements compensation pattern - " +
+               description = "Creates hotel, flight, and taxi bookings. Implements compensation pattern - " +
                              "if any booking fails, successful bookings are automatically cancelled.")
     @APIResponse(responseCode = "201", description = "Travel booking created successfully",
             content = @Content(schema = @Schema(implementation = TravelAgentBookingResponse.class)))
@@ -60,6 +67,7 @@ public class TravelAgentResource {
         
         Long hotelBookingId = null;
         Long flightBookingId = null;
+        Long taxiBookingId = null;
         
         try {
             // Step 1: Book Hotel (external service)
@@ -83,10 +91,26 @@ public class TravelAgentResource {
             flightBookingId = flightBooking.getId();
             log.info("Flight booking created with ID: " + flightBookingId);
             
-            // Success - both bookings completed
+            // Step 3: Book Taxi (external service)
+            log.info("Step 3: Booking taxi " + request.getTaxiId());
+            TaxiBookingRequest taxiRequest = new TaxiBookingRequest();
+            taxiRequest.setCustomerId(request.getCustomerId());
+            taxiRequest.setTaxiId(request.getTaxiId());
+            taxiRequest.setBookingDate(request.getDate());
+            taxiRequest.setDepartureDate(request.getDate());
+            taxiRequest.setDepartureLocation(request.getDepartureLocation() != null ? request.getDepartureLocation() : "Airport");
+            taxiRequest.setDestination(request.getDestination() != null ? request.getDestination() : "Hotel");
+            taxiRequest.setPassengerCount(request.getPassengerCount() != null ? request.getPassengerCount() : 1);
+            
+            TaxiBookingResponse taxiResponse = taxiServiceClient.createBooking(taxiRequest);
+            taxiBookingId = taxiResponse.getId();
+            log.info("Taxi booking created with ID: " + taxiBookingId);
+            
+            // Success - all bookings completed
             TravelAgentBookingResponse response = new TravelAgentBookingResponse(
                     hotelBookingId,
                     flightBookingId,
+                    taxiBookingId,
                     "SUCCESS",
                     "Travel booking completed successfully"
             );
@@ -98,8 +122,13 @@ public class TravelAgentResource {
             log.severe("Travel booking failed: " + e.getMessage());
             log.info("Executing compensation (rollback)...");
             
-            // Compensation: Cancel successful bookings
+            // Compensation: Cancel successful bookings in reverse order
             try {
+                if (taxiBookingId != null) {
+                    log.info("Cancelling taxi booking " + taxiBookingId);
+                    taxiServiceClient.cancelBooking(taxiBookingId);
+                }
+                
                 if (flightBookingId != null) {
                     log.info("Cancelling flight booking " + flightBookingId);
                     bookingService.cancelBooking(flightBookingId);
@@ -119,6 +148,7 @@ public class TravelAgentResource {
             TravelAgentBookingResponse errorResponse = new TravelAgentBookingResponse(
                     hotelBookingId,
                     flightBookingId,
+                    taxiBookingId,
                     "FAILED",
                     "Travel booking failed: " + e.getMessage() + ". All bookings have been cancelled."
             );

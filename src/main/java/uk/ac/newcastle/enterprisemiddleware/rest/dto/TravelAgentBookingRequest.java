@@ -24,6 +24,19 @@ public class TravelAgentBookingRequest {
     @JsonProperty("date")
     private String date;
 
+    @NotNull(message = "Taxi ID is required")
+    @JsonProperty("taxiId")
+    private Long taxiId;
+
+    @JsonProperty("departureLocation")
+    private String departureLocation;
+
+    @JsonProperty("destination")
+    private String destination;
+
+    @JsonProperty("passengerCount")
+    private Integer passengerCount;
+
     public TravelAgentBookingRequest() {
     }
 
@@ -57,6 +70,38 @@ public class TravelAgentBookingRequest {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public Long getTaxiId() {
+        return taxiId;
+    }
+
+    public void setTaxiId(Long taxiId) {
+        this.taxiId = taxiId;
+    }
+
+    public String getDepartureLocation() {
+        return departureLocation;
+    }
+
+    public void setDepartureLocation(String departureLocation) {
+        this.departureLocation = departureLocation;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public Integer getPassengerCount() {
+        return passengerCount;
+    }
+
+    public void setPassengerCount(Integer passengerCount) {
+        this.passengerCount = passengerCount;
     }
 }
 
